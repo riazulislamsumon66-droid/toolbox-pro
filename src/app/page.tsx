@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useMemo } from 'react'
 import ToolCard from '@/components/ToolCard'
 
 const allTools = [
@@ -96,6 +99,18 @@ const faqs = [
 ]
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredTools = useMemo(() => {
+    if (!searchQuery.trim()) return allTools
+    const q = searchQuery.toLowerCase().trim()
+    return allTools.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.description.toLowerCase().includes(q) ||
+      t.category.toLowerCase().includes(q)
+    )
+  }, [searchQuery])
+
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -128,9 +143,49 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-8">
-              {allTools.length}+ free online tools for text, design, development, security, and calculations.
+              {allTools.length}+ free online tools for text, design, development, security, SEO, and calculations.
               All run in your browser — no signup, no limits, no data collection.
             </p>
+
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="relative">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tools... (e.g., password, JSON, color, SEO)"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-900/80 border border-gray-700 rounded-2xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-lg"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              {/* Quick tags */}
+              {!searchQuery && (
+                <div className="flex flex-wrap justify-center gap-2 mt-3">
+                  {['password', 'JSON', 'color', 'SEO', 'hash', 'regex', 'gradient', 'BMI', 'encrypt', 'slug'].map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => setSearchQuery(tag)}
+                      className="px-3 py-1 text-xs bg-gray-800/50 text-gray-500 rounded-full hover:bg-gray-700 hover:text-gray-300 transition-colors"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="flex flex-wrap justify-center gap-4">
               <a href="#tools" className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-all text-lg">
                 Browse All Tools
@@ -209,12 +264,22 @@ export default function Home() {
 
       {/* All Tools */}
       <section id="tools" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20" aria-label="All Tools">
-        <h2 className="text-2xl font-bold mb-8 text-center">All {allTools.length}+ Free Tools</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allTools.map((tool) => (
-            <ToolCard key={tool.href} {...tool} />
-          ))}
-        </div>
+        <h2 className="text-2xl font-bold mb-8 text-center">
+          {searchQuery ? `Search Results (${filteredTools.length})` : `All ${allTools.length}+ Free Tools`}
+        </h2>
+        {filteredTools.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTools.map((tool) => (
+              <ToolCard key={tool.href} {...tool} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <span className="text-5xl block mb-4">🔍</span>
+            <p className="text-gray-400 text-lg">No tools found for &quot;{searchQuery}&quot;</p>
+            <p className="text-gray-600 text-sm mt-2">Try searching for: password, JSON, color, SEO, calculator...</p>
+          </div>
+        )}
       </section>
 
       {/* FAQ Section */}
