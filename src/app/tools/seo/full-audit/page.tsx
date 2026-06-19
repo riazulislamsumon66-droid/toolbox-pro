@@ -21,13 +21,56 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export default function FullSeoAuditPage() {
+  const [url, setUrl] = useState('')
   const [html, setHtml] = useState('')
   const [targetKeyword, setTargetKeyword] = useState('')
   const [report, setReport] = useState<ReturnType<typeof runFullSeoAudit> | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fetchProgress, setFetchProgress] = useState('')
+  const [activeTab, setActiveTab] = useState<'url' | 'paste'>('url')
 
-  const handleAnalyze = () => {
+  const handleFetchAndAnalyze = async () => {
+    if (!url.trim()) {
+      setError('Please enter a website URL')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setFetchProgress('Fetching website...')
+    setReport(null)
+
+    try {
+      // Step 1: Fetch URL via our API
+      const fetchRes = await fetch(`/api/fetch-url?url=${encodeURIComponent(url.trim())}`)
+      const fetchData = await fetchRes.json()
+
+      if (!fetchRes.ok) {
+        setError(fetchData.error || 'Failed to fetch website')
+        setLoading(false)
+        return
+      }
+
+      setFetchProgress('Analyzing SEO...')
+
+      // Step 2: Run SEO audit on fetched HTML
+      const result = runFullSeoAudit(fetchData.html, {
+        targetKeyword: targetKeyword || undefined,
+        baseUrl: fetchData.url,
+      })
+
+      setReport(result)
+      setHtml(fetchData.html)
+    } catch (e: any) {
+      setError(e.message || 'Failed to analyze website')
+    }
+
+    setLoading(false)
+    setFetchProgress('')
+  }
+
+  const handlePasteAnalyze = () => {
     if (!html.trim()) {
       setError('Please paste HTML code to analyze')
       return
@@ -50,43 +93,120 @@ export default function FullSeoAuditPage() {
   return (
     <ToolPage
       title="Full SEO Audit"
-      description="Complete SEO analysis — title, meta, headings, images, links, keywords, mobile, structured data, and performance."
+      description="Enter any website URL to get a complete SEO analysis — title, meta, headings, images, links, keywords, mobile, structured data, and performance."
       icon="🔍"
       category="seo"
     >
       <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Paste HTML code to analyze:</label>
-          <textarea
-            value={html}
-            onChange={(e) => setHtml(e.target.value)}
-            placeholder="Paste your webpage's HTML source code here... (Right-click → View Page Source → Copy)"
-            className="w-full p-4 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all resize-none font-mono text-sm"
-            rows={8}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Target keyword (optional):</label>
-          <input
-            type="text"
-            value={targetKeyword}
-            onChange={(e) => setTargetKeyword(e.target.value)}
-            placeholder="e.g., free online tools"
-            className="w-full p-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all"
-          />
-        </div>
-
-        <div className="flex gap-3">
-          <button onClick={handleAnalyze} disabled={loading} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all">
-            {loading ? '⏳ Analyzing...' : '🔍 Run Full SEO Audit'}
+        {/* Tab Selector */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('url')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              activeTab === 'url'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            🌐 Enter URL
           </button>
-          <button onClick={() => { setHtml(''); setReport(null); setError('') }} className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold rounded-xl transition-all border border-gray-700">
-            Clear
+          <button
+            onClick={() => setActiveTab('paste')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              activeTab === 'paste'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            📋 Paste HTML
           </button>
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {activeTab === 'url' ? (
+          <>
+            {/* URL Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Website URL to analyze:</label>
+              <div className="flex gap-3">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com"
+                  className="flex-1 p-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all"
+                  onKeyDown={(e) => e.key === 'Enter' && handleFetchAndAnalyze()}
+                />
+                <button
+                  onClick={handleFetchAndAnalyze}
+                  disabled={loading}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all whitespace-nowrap"
+                >
+                  {loading ? '⏳ Analyzing...' : '🔍 Analyze'}
+                </button>
+              </div>
+            </div>
+
+            {/* Target Keyword */}
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Target keyword (optional):</label>
+              <input
+                type="text"
+                value={targetKeyword}
+                onChange={(e) => setTargetKeyword(e.target.value)}
+                placeholder="e.g., free online tools"
+                className="w-full p-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all"
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Paste HTML */}
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Paste HTML code to analyze:</label>
+              <textarea
+                value={html}
+                onChange={(e) => setHtml(e.target.value)}
+                placeholder="Paste your webpage's HTML source code here... (Right-click → View Page Source → Copy)"
+                className="w-full p-4 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all resize-none font-mono text-sm"
+                rows={8}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Target keyword (optional):</label>
+              <input
+                type="text"
+                value={targetKeyword}
+                onChange={(e) => setTargetKeyword(e.target.value)}
+                placeholder="e.g., free online tools"
+                className="w-full p-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={handlePasteAnalyze} disabled={loading} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all">
+                {loading ? '⏳ Analyzing...' : '🔍 Run Full SEO Audit'}
+              </button>
+              <button onClick={() => { setHtml(''); setReport(null); setError('') }} className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold rounded-xl transition-all border border-gray-700">
+                Clear
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Progress */}
+        {fetchProgress && (
+          <div className="flex items-center gap-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+            <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+            <span className="text-purple-300">{fetchProgress}</span>
+          </div>
+        )}
+
+        {error && (
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <p className="text-red-400 text-sm">❌ {error}</p>
+          </div>
+        )}
 
         {report && (
           <div className="space-y-6">
