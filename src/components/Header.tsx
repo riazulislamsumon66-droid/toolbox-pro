@@ -9,6 +9,7 @@ const categories = [
   { id: 'design', label: 'Design', icon: '🎨', count: 8 },
   { id: 'dev', label: 'Developer', icon: '💻', count: 8 },
   { id: 'calculator', label: 'Calculator', icon: '🧮', count: 8 },
+  { id: 'seo', label: 'SEO', icon: '🔍', count: 10 },
 ]
 
 export default function Header() {

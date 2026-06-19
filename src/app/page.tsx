@@ -54,6 +54,18 @@ const allTools = [
   { name: 'Loan Calculator', description: 'Calculate monthly payments, total interest for loans', icon: '🏦', href: '/tools/calculator/loan', category: 'calculator' },
   { name: 'Percentage Calculator', description: 'Calculate percentage of a number or between two numbers', icon: '💯', href: '/tools/calculator/percentage', category: 'calculator' },
   { name: 'Salary Calculator', description: 'Convert annual salary to hourly, daily, weekly, monthly', icon: '💰', href: '/tools/calculator/salary', category: 'calculator' },
+
+  // SEO Tools
+  { name: 'Full SEO Audit', description: 'Complete SEO analysis — title, meta, headings, images, links, keywords, mobile, structured data', icon: '🔍', href: '/tools/seo/full-audit', category: 'seo' },
+  { name: 'Title & Meta Checker', description: 'Check page title, meta description, canonical URL, viewport, and charset', icon: '📝', href: '/tools/seo/title-meta-checker', category: 'seo' },
+  { name: 'Open Graph Analyzer', description: 'Analyze OG tags and Twitter Card markup for social sharing', icon: '🌐', href: '/tools/seo/open-graph-analyzer', category: 'seo' },
+  { name: 'Heading Structure', description: 'Check H1-H6 heading hierarchy and structure for SEO', icon: '📋', href: '/tools/seo/heading-analyzer', category: 'seo' },
+  { name: 'Image Alt Checker', description: 'Find missing alt text on images — important for SEO and accessibility', icon: '🖼️', href: '/tools/seo/image-alt-checker', category: 'seo' },
+  { name: 'Link Analyzer', description: 'Analyze internal, external, nofollow links and anchor text', icon: '🔗', href: '/tools/seo/link-analyzer', category: 'seo' },
+  { name: 'Keyword Density', description: 'Analyze keyword frequency and density in content', icon: '📊', href: '/tools/seo/keyword-density', category: 'seo' },
+  { name: 'Mobile-Friendly Check', description: 'Check viewport, font sizes, fixed widths, and touch targets', icon: '📱', href: '/tools/seo/mobile-checker', category: 'seo' },
+  { name: 'Structured Data', description: 'Check JSON-LD and microdata schema markup', icon: '{ }', href: '/tools/seo/structured-data-checker', category: 'seo' },
+  { name: 'Performance Check', description: 'Check page size, image dimensions, scripts, and inline styles', icon: '⚡', href: '/tools/seo/performance-checker', category: 'seo' },
 ]
 
 const faqs = [
@@ -136,7 +148,7 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'Free Tools', value: `${allTools.length}+` },
-            { label: 'Categories', value: '5' },
+            { label: 'Categories', value: '6' },
             { label: 'No Signup', value: '✅' },
             { label: 'Free Forever', value: '💯' },
           ].map((stat) => (
@@ -173,13 +185,14 @@ export default function Home() {
       {/* Categories */}
       <section id="categories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" aria-label="Tool Categories">
         <h2 className="text-2xl font-bold mb-8 text-center">Tool Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
             { id: 'text', icon: '📝', label: 'Text Tools', desc: '10 tools', color: 'from-blue-500/20 to-blue-600/5 border-blue-500/20 hover:border-blue-500/50' },
             { id: 'security', icon: '🔐', label: 'Security', desc: '10 tools', color: 'from-green-500/20 to-green-600/5 border-green-500/20 hover:border-green-500/50' },
             { id: 'design', icon: '🎨', label: 'Design', desc: '8 tools', color: 'from-pink-500/20 to-pink-600/5 border-pink-500/20 hover:border-pink-500/50' },
             { id: 'dev', icon: '💻', label: 'Developer', desc: '8 tools', color: 'from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 hover:border-yellow-500/50' },
             { id: 'calculator', icon: '🧮', label: 'Calculator', desc: '8 tools', color: 'from-orange-500/20 to-orange-600/5 border-orange-500/20 hover:border-orange-500/50' },
+            { id: 'seo', icon: '🔍', label: 'SEO Tools', desc: '10 tools', color: 'from-purple-500/20 to-purple-600/5 border-purple-500/20 hover:border-purple-500/50' },
           ].map((cat) => (
             <a
               key={cat.id}
