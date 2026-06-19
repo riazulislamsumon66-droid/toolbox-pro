@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Head from 'next/head'
 
 interface ToolPageProps {
   title: string
@@ -9,7 +10,6 @@ interface ToolPageProps {
   icon: string
   category: string
   children: React.ReactNode
-  adSlot?: string
 }
 
 export default function ToolPage({ title, description, icon, category, children }: ToolPageProps) {
@@ -24,7 +24,7 @@ export default function ToolPage({ title, description, icon, category, children 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-purple-400 transition-colors">Home</Link>
         <span>/</span>
         <Link href={`/tools/${category}`} className="hover:text-purple-400 transition-colors">
